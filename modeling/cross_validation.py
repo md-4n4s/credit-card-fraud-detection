@@ -1,9 +1,21 @@
-from sklearn.model_selection import StratifiedKFold, cross_val_score
+from sklearn.model_selection import StratifiedKFold, cross_validate
 
 
-def evaluate_cv(model, X, y, scoring="roc_auc", n_splits=5):
+def evaluate_cv(model, X, y, n_splits=5):
     cv = StratifiedKFold(n_splits=n_splits, shuffle=True, random_state=42)
 
-    scores = cross_val_score(model, X, y, cv=cv, scoring=scoring, n_jobs=-1)
+    scoring = ["precision", "recall", "f1", "accuracy", "roc_auc"]
 
-    return {"scores": scores, "mean": scores.mean()}
+    scores = cross_validate(
+        model,
+        X,
+        y,
+        cv=cv,
+        scoring=scoring,
+        n_jobs=-1
+    )
+
+    return {
+        metric: scores[f"test_{metric}"].mean()
+        for metric in scoring
+    }
