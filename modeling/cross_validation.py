@@ -6,16 +6,6 @@ def evaluate_cv(model, X, y, n_splits=5):
 
     scoring = ["precision", "recall", "f1", "accuracy", "roc_auc"]
 
-    scores = cross_validate(
-        model,
-        X,
-        y,
-        cv=cv,
-        scoring=scoring,
-        n_jobs=-1
-    )
+    scores = cross_validate(model, X, y, cv=cv, scoring=scoring, n_jobs=-1)
 
-    return {
-        metric: scores[f"test_{metric}"].mean()
-        for metric in scoring
-    }
+    return {metric: scores[f"test_{metric}"].mean() for metric in scoring}
