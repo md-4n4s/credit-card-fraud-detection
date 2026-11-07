@@ -6,9 +6,12 @@ drop = ["Time", "V6", "V13", "V20", "V22", "V23", "V24", "V25", "V26", "V27", "V
 
 test = ["V1", "V5", "V8", "V19", "V21", "Amount"]
 
-keep = ["V2", "V3", "V4", "V7", "V9", "V10", "V11", "V12", "V14", "V16", "V17", "V18"]
+keep = ["V2", "V4", "V7", "V10", "V14", "V16", "V17"]
 
-df = pd.read_csv("../data/preprocessed/creditcard.csv")
+# during feature selection
+removed_from_keep = ["V3", "V12", "V9", "V11", "V18"]
+
+df = pd.read_csv("../../data/preprocessed/creditcard.csv")
 
 X = df.drop("Class", axis=1)
 y = df["Class"]
