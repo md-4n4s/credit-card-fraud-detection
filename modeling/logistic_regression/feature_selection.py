@@ -1,22 +1,22 @@
 from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import (
+    accuracy_score,
+    f1_score,
+    precision_score,
+    recall_score,
+    roc_auc_score,
+)
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
 
-from sklearn.metrics import (
-    precision_score,
-    recall_score,
-    f1_score,
-    accuracy_score,
-    roc_auc_score,
-)
 from modeling.experiment_tracker import save_experiment
 from modeling.logistic_regression.model_setup import (
     X_train,
-    y_train,
     X_val,
-    y_val,
     keep,
     test,
+    y_train,
+    y_val,
 )
 
 model = Pipeline(
@@ -27,28 +27,34 @@ model = Pipeline(
 )
 
 
-def try_test_features():
+def try_test_features(
+    keep_features,
+    selected_model,
+    model_name="LogisticRegression",
+    scaling="StandardScaler",
+    max_iter=500,
+):
 
     for feature in test:
-        selected_features = keep + [feature]
-        model.fit(X_train[selected_features], y_train)
+        selected_features = keep_features + [feature]
+        selected_model.fit(X_train[selected_features], y_train)
 
-        y_predict = model.predict(X_val[selected_features])
+        y_predict = selected_model.predict(X_val[selected_features])
 
         precision = precision_score(y_val, y_predict)
         recall = recall_score(y_val, y_predict)
         f1 = f1_score(y_val, y_predict)
         accuracy = accuracy_score(y_val, y_predict)
-        y_prob = model.predict_proba(X_val[selected_features])[:, 1]
+        y_prob = selected_model.predict_proba(X_val[selected_features])[:, 1]
 
         roc_auc = roc_auc_score(y_val, y_prob)
 
         results = {
-            "model": "LogisticRegression",
+            "model": model_name,
             "features": ",".join(selected_features),
-            "n_features": len(keep) + 1,
-            "scaling": "StandardScaler",
-            "max_iter": 500,
+            "n_features": len(selected_features),
+            "scaling": scaling,
+            "max_iter": max_iter,
             "precision": precision,
             "recall": recall,
             "f1": f1,
@@ -61,28 +67,34 @@ def try_test_features():
         save_experiment(results)
 
 
-def try_keep_features():
-    for feature in keep:
-        selected_features = [f for f in keep if f != feature]
+def try_keep_features(
+    keep_features,
+    selected_model,
+    model_name="LogisticRegression",
+    scaling="StandardScaler",
+    max_iter=500,
+):
+    for feature in keep_features:
+        selected_features = [f for f in keep_features if f != feature]
 
-        model.fit(X_train[selected_features], y_train)
+        selected_model.fit(X_train[selected_features], y_train)
 
-        y_predict = model.predict(X_val[selected_features])
+        y_predict = selected_model.predict(X_val[selected_features])
 
         precision = precision_score(y_val, y_predict)
         recall = recall_score(y_val, y_predict)
         f1 = f1_score(y_val, y_predict)
         accuracy = accuracy_score(y_val, y_predict)
 
-        y_prob = model.predict_proba(X_val[selected_features])[:, 1]
+        y_prob = selected_model.predict_proba(X_val[selected_features])[:, 1]
         roc_auc = roc_auc_score(y_val, y_prob)
 
         results = {
-            "model": "LogisticRegression",
+            "model": model_name,
             "features": ",".join(selected_features),
             "n_features": len(selected_features),
-            "scaling": "StandardScaler",
-            "max_iter": 500,
+            "scaling": scaling,
+            "max_iter": max_iter,
             "precision": precision,
             "recall": recall,
             "f1": f1,
@@ -96,5 +108,5 @@ def try_keep_features():
 
 
 if __name__ == "__main__":
-    try_test_features()
-    try_keep_features()
+    try_test_features(keep_features=keep, selected_model=model)
+    try_keep_features(keep_features=keep, selected_model=model)

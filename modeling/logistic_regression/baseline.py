@@ -1,22 +1,22 @@
-from sklearn.linear_model import LogisticRegression
 from imblearn.pipeline import Pipeline
-from sklearn.preprocessing import StandardScaler
+from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import (
+    accuracy_score,
+    f1_score,
     precision_score,
     recall_score,
-    f1_score,
-    accuracy_score,
     roc_auc_score,
 )
+from sklearn.preprocessing import StandardScaler
 
 from modeling.cross_validation import evaluate_cv
 from modeling.experiment_tracker import save_experiment
 from modeling.logistic_regression.model_setup import (
     X_train,
-    y_train,
     X_val,
-    y_val,
     keep,
+    y_train,
+    y_val,
 )
 
 model = Pipeline(
@@ -27,15 +27,21 @@ model = Pipeline(
 )
 
 
-def report_cross_validation():
-    cv_results = evaluate_cv(model, X_train[keep], y_train)
+def report_cross_validation(
+    selected_model,
+    features,
+    model_name="LogisticRegression",
+    scaling="StandardScaler",
+    max_iter=500,
+):
+    cv_results = evaluate_cv(selected_model, X_train[features], y_train)
 
     results = {
-        "model": "LogisticRegression (Cross-validation)",
-        "features": ",".join(keep),
-        "n_features": len(keep),
-        "scaling": "StandardScaler",
-        "max_iter": 500,
+        "model": f"{model_name} (Cross-validation)",
+        "features": ",".join(features),
+        "n_features": len(features),
+        "scaling": scaling,
+        "max_iter": max_iter,
         "precision": cv_results["precision"],
         "recall": cv_results["recall"],
         "f1": cv_results["f1"],
@@ -48,25 +54,31 @@ def report_cross_validation():
     save_experiment(results)
 
 
-def report_keep_features():
-    model.fit(X_train[keep], y_train)
+def report_keep_features(
+    selected_model,
+    features,
+    model_name="LogisticRegression",
+    scaling="StandardScaler",
+    max_iter=500,
+):
+    selected_model.fit(X_train[features], y_train)
 
-    y_predict = model.predict(X_val[keep])
+    y_predict = selected_model.predict(X_val[features])
 
     precision = precision_score(y_val, y_predict)
     recall = recall_score(y_val, y_predict)
     f1 = f1_score(y_val, y_predict)
     accuracy = accuracy_score(y_val, y_predict)
-    y_prob = model.predict_proba(X_val[keep])[:, 1]
+    y_prob = selected_model.predict_proba(X_val[features])[:, 1]
 
     roc_auc = roc_auc_score(y_val, y_prob)
 
     results = {
-        "model": "LogisticRegression",
-        "features": ",".join(keep),
-        "n_features": len(keep),
-        "scaling": "StandardScaler",
-        "max_iter": 500,
+        "model": model_name,
+        "features": ",".join(features),
+        "n_features": len(features),
+        "scaling": scaling,
+        "max_iter": max_iter,
         "precision": precision,
         "recall": recall,
         "f1": f1,
@@ -80,5 +92,5 @@ def report_keep_features():
 
 
 if __name__ == "__main__":
-    report_cross_validation()
-    report_keep_features()
+    report_cross_validation(selected_model=model, features=keep)
+    report_keep_features(selected_model=model, features=keep)
