@@ -26,6 +26,7 @@ model = Pipeline(
     ]
 )
 
+
 def try_test_features():
 
     for feature in test:
@@ -59,6 +60,7 @@ def try_test_features():
 
         save_experiment(results)
 
+
 def try_keep_features():
     for feature in keep:
         selected_features = [f for f in keep if f != feature]
@@ -91,6 +93,7 @@ def try_keep_features():
         }
 
         save_experiment(results)
+
 
 if __name__ == "__main__":
     try_test_features()
