@@ -60,7 +60,7 @@ def report_keep_features(
     model_name="LogisticRegression",
     scaling="StandardScaler",
     max_iter=500,
-    roc_auc=True
+    roc_auc=True,
 ):
     selected_model.fit(X_train[features], y_train)
 
