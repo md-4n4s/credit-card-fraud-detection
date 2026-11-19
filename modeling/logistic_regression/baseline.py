@@ -60,6 +60,7 @@ def report_keep_features(
     model_name="LogisticRegression",
     scaling="StandardScaler",
     max_iter=500,
+    roc_auc=True
 ):
     selected_model.fit(X_train[features], y_train)
 
@@ -69,9 +70,12 @@ def report_keep_features(
     recall = recall_score(y_val, y_predict)
     f1 = f1_score(y_val, y_predict)
     accuracy = accuracy_score(y_val, y_predict)
-    y_prob = selected_model.predict_proba(X_val[features])[:, 1]
+    if roc_auc:
+        y_prob = selected_model.predict_proba(X_val[features])[:, 1]
 
-    roc_auc = roc_auc_score(y_val, y_prob)
+        roc_auc = roc_auc_score(y_val, y_prob)
+    else:
+        roc_auc = None
 
     results = {
         "model": model_name,
