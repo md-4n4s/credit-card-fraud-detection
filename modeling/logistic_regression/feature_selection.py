@@ -33,9 +33,10 @@ def try_test_features(
     model_name="LogisticRegression",
     scaling="StandardScaler",
     max_iter=500,
+    test_features=test,
 ):
 
-    for feature in test:
+    for feature in test_features:
         selected_features = keep_features + [feature]
         selected_model.fit(X_train[selected_features], y_train)
 
