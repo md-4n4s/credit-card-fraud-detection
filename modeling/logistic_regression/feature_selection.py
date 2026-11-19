@@ -34,6 +34,7 @@ def try_test_features(
     scaling="StandardScaler",
     max_iter=500,
     test_features=test,
+    roc_auc=True,
 ):
 
     for feature in test_features:
@@ -46,9 +47,12 @@ def try_test_features(
         recall = recall_score(y_val, y_predict)
         f1 = f1_score(y_val, y_predict)
         accuracy = accuracy_score(y_val, y_predict)
-        y_prob = selected_model.predict_proba(X_val[selected_features])[:, 1]
+        if roc_auc:
+            y_prob = selected_model.predict_proba(X_val[selected_features])[:, 1]
 
-        roc_auc = roc_auc_score(y_val, y_prob)
+            roc_auc = roc_auc_score(y_val, y_prob)
+        else:
+            roc_auc = None
 
         results = {
             "model": model_name,
@@ -74,6 +78,7 @@ def try_keep_features(
     model_name="LogisticRegression",
     scaling="StandardScaler",
     max_iter=500,
+    roc_auc=True,
 ):
     for feature in keep_features:
         selected_features = [f for f in keep_features if f != feature]
@@ -87,8 +92,12 @@ def try_keep_features(
         f1 = f1_score(y_val, y_predict)
         accuracy = accuracy_score(y_val, y_predict)
 
-        y_prob = selected_model.predict_proba(X_val[selected_features])[:, 1]
-        roc_auc = roc_auc_score(y_val, y_prob)
+        if roc_auc:
+            y_prob = selected_model.predict_proba(X_val[selected_features])[:, 1]
+
+            roc_auc = roc_auc_score(y_val, y_prob)
+        else:
+            roc_auc = None
 
         results = {
             "model": model_name,
