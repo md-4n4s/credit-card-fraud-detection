@@ -32,7 +32,10 @@ test_to_keep = [
     "V19",
 ]
 
-df = pd.read_csv("../../data/preprocessed/creditcard.csv")
+if __name__ == "__main__":
+    df = pd.read_csv("../../data/preprocessed/creditcard.csv")
+else:
+    df = pd.read_csv("../data/preprocessed/creditcard.csv")
 
 X = df.drop("Class", axis=1)
 y = df["Class"]
