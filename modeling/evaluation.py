@@ -1,4 +1,5 @@
 import joblib
+import pandas as pd
 from matplotlib import pyplot as plt
 from sklearn.metrics import (
     accuracy_score,
@@ -9,11 +10,26 @@ from sklearn.metrics import (
     roc_auc_score,
 )
 
-from modeling.KNN.model_setup import X_test, keep, y_test, X_val, y_val
+from modeling.KNN.model_setup import X_test, X_val, keep, y_test, y_val
 
 model = joblib.load("../model/knn_model.pkl")
 
-def evaluate_knn(feature, target, test_data=True):
+
+def evaluate_knn(
+    feature: pd.DataFrame, target: pd.Series, test_data: bool = True
+) -> None:
+    """
+    Evaluate a KNN model, calculate classification metrics,
+    and save a performance metrics bar chart.
+
+    Parameters:
+        feature (pd.DataFrame):  Feature dataset used for evaluation.
+        target (pd.Series): Actual target labels.
+        test_data (bool, optional): Whether to evaluate test data. Defaults to True. If False, validation data is assumed.
+    Returns:
+        None
+    """
+
     y_predict = model.predict(feature)
 
     y_prob = model.predict_proba(feature)[:, 1]
@@ -36,7 +52,7 @@ def evaluate_knn(feature, target, test_data=True):
 
     plt.figure(figsize=(10, 6))
 
-    bars = plt.bar(metrics.keys(), metrics.values())
+    bars = plt.bar(list(metrics.keys()), list(metrics.values()))
 
     plt.ylim(0, 1)
     plt.xlabel("Metrics")

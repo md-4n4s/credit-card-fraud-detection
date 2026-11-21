@@ -1,3 +1,5 @@
+from typing import Any
+
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import (
     accuracy_score,
@@ -28,14 +30,29 @@ model = Pipeline(
 
 
 def try_test_features(
-    keep_features,
-    selected_model,
-    model_name="LogisticRegression",
-    scaling="StandardScaler",
-    max_iter=500,
-    test_features=test,
-    roc_auc=True,
-):
+    keep_features: list[str],
+    selected_model: Any,
+    model_name: str = "LogisticRegression",
+    scaling: str = "StandardScaler",
+    max_iter: int | None = 500,
+    test_features: list[str] = test,
+    roc_auc: bool = True,
+) -> None:
+    """
+    Test additional features individually alongside the existing selected
+    features, evaluate the model, and save experiment results.
+
+    Parameters:
+        keep_features (list[str]): Features already selected for the model.
+        selected_model (Any): Machine learning model to train and evaluate.
+        model_name (str): Name of the model.
+        scaling (str): Scaling method to use.
+        max_iter (int): Maximum number of iterations used by the model.
+        test_features (list[str]): Additional features to test individually.
+        roc_auc (bool): Whether to use roc auc score.
+    Returns:
+        None
+    """
 
     for feature in test_features:
         selected_features = keep_features + [feature]
@@ -50,9 +67,9 @@ def try_test_features(
         if roc_auc:
             y_prob = selected_model.predict_proba(X_val[selected_features])[:, 1]
 
-            roc_auc = roc_auc_score(y_val, y_prob)
+            roc_auc_value = roc_auc_score(y_val, y_prob)
         else:
-            roc_auc = None
+            roc_auc_value = None
 
         results = {
             "model": model_name,
@@ -64,7 +81,7 @@ def try_test_features(
             "recall": recall,
             "f1": f1,
             "accuracy": accuracy,
-            "roc_auc": roc_auc,
+            "roc_auc_value": roc_auc_value,
             "threshold": "Default",
             "class_distribution": "original",
         }
@@ -73,13 +90,28 @@ def try_test_features(
 
 
 def try_keep_features(
-    keep_features,
-    selected_model,
-    model_name="LogisticRegression",
-    scaling="StandardScaler",
-    max_iter=500,
-    roc_auc=True,
-):
+    keep_features: list[str],
+    selected_model: Any,
+    model_name: str = "LogisticRegression",
+    scaling: str = "StandardScaler",
+    max_iter: int | None = 500,
+    roc_auc: bool = True,
+) -> None:
+    """
+    Test the effect of removing each selected feature individually,
+    evaluate the model, and save experiment results.
+
+    Parameters:
+        keep_features (list[str]): Features already selected for the model.
+        selected_model (Any): Machine learning model to train and evaluate.
+        model_name (str): Name of the model.
+        scaling (str): Scaling method to use.
+        max_iter (int): Maximum number of iterations used by the model.
+        roc_auc (bool): Whether to use roc auc score.
+    Returns:
+        None
+    """
+
     for feature in keep_features:
         selected_features = [f for f in keep_features if f != feature]
 
@@ -95,9 +127,9 @@ def try_keep_features(
         if roc_auc:
             y_prob = selected_model.predict_proba(X_val[selected_features])[:, 1]
 
-            roc_auc = roc_auc_score(y_val, y_prob)
+            roc_auc_value = roc_auc_score(y_val, y_prob)
         else:
-            roc_auc = None
+            roc_auc_value = None
 
         results = {
             "model": model_name,
@@ -109,7 +141,7 @@ def try_keep_features(
             "recall": recall,
             "f1": f1,
             "accuracy": accuracy,
-            "roc_auc": roc_auc,
+            "roc_auc": roc_auc_value,
             "threshold": "Default",
             "class_distribution": "original",
         }

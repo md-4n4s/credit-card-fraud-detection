@@ -1,3 +1,5 @@
+from typing import Any
+
 from imblearn.over_sampling import SMOTE
 from sklearn.metrics import (
     accuracy_score,
@@ -13,15 +15,32 @@ from modeling.random_forest.model_setup import *
 
 
 def use_SMOTE(
-    train_features,
-    train_target,
-    val_features,
-    val_target,
-    selected_model,
-    model_name,
-    max_iter,
-    scaling="None",
-):
+    train_features: pd.DataFrame,
+    train_target: pd.Series,
+    val_features: pd.DataFrame,
+    val_target: pd.Series,
+    selected_model: Any,
+    model_name: str,
+    max_iter: int | None,
+    scaling: str = "None",
+) -> None:
+    """
+    Apply SMOTE to training data, train the selected model,
+    evaluate it on validation data, and save experiment results.
+
+    Parameters:
+        train_features (pd.DataFrame): Training features dataframe.
+        train_target (pd.Series): Training target labels.
+        val_features (pd.DataFrame): Validation features dataframe.
+        val_target (pd.Series): Validation target labels.
+        selected_model (Any): Machine learning model to train and evaluate.
+        model_name (str): Machine learning model name.
+        max_iter (int): Maximum number of iterations used by the model.
+        scaling (str): Scaling method applied to features.
+    Returns:
+        None
+    """
+
     smote = SMOTE(random_state=42)
     X_resampled, y_resampled = smote.fit_resample(train_features, train_target)
 
@@ -39,7 +58,7 @@ def use_SMOTE(
 
     results = {
         "model": model_name,
-        "features": ",".join(train_features),
+        "features": ",".join(train_features.columns),
         "n_features": train_features.shape[1],
         "scaling": scaling,
         "max_iter": max_iter,

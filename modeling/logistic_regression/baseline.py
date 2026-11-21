@@ -1,4 +1,7 @@
+from typing import Any
+
 from imblearn.pipeline import Pipeline
+from sklearn.base import BaseEstimator
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import (
     accuracy_score,
@@ -28,12 +31,25 @@ model = Pipeline(
 
 
 def report_cross_validation(
-    selected_model,
-    features,
-    model_name="LogisticRegression",
-    scaling="StandardScaler",
-    max_iter=500,
-):
+    selected_model: BaseEstimator,
+    features: list[str],
+    model_name: str = "LogisticRegression",
+    scaling: str = "StandardScaler",
+    max_iter: int | None = 500,
+) -> None:
+    """
+    Evaluate a model using cross-validation and save experiment results.
+
+    Parameters:
+        selected_model (BaseEstimator): Machine learning model to evaluate.
+        features (list[str]): Features to train and evaluate.
+        model_name (str): Name of the model to evaluate.
+        scaling (str): Scaling method to use to scale the features.
+        max_iter (int): Maximum number of iterations used by the model.
+    Returns:
+        None
+    """
+
     cv_results = evaluate_cv(selected_model, X_train[features], y_train)
 
     results = {
@@ -55,13 +71,28 @@ def report_cross_validation(
 
 
 def report_keep_features(
-    selected_model,
-    features,
-    model_name="LogisticRegression",
-    scaling="StandardScaler",
-    max_iter=500,
-    roc_auc=True,
-):
+    selected_model: Any,
+    features: list[str],
+    model_name: str = "LogisticRegression",
+    scaling: str = "StandardScaler",
+    max_iter: int | None = 500,
+    roc_auc: bool = True,
+) -> None:
+    """
+    Train a model using selected features, evaluate it on validation data,
+    and save the experiment results.
+
+    Parameters:
+        selected_model (BaseEstimator): Machine learning model to train and evaluate.
+        features (list[str]): List of selected feature names.
+        model_name (str): Name of the model to evaluate.
+        scaling (str): Scaling method to use to scale the features.
+        max_iter (int): Maximum number of iterations used by the model.
+        roc_auc (bool): Whether to use roc auc score.
+    Returns:
+        None
+    """
+
     selected_model.fit(X_train[features], y_train)
 
     y_predict = selected_model.predict(X_val[features])
@@ -73,9 +104,9 @@ def report_keep_features(
     if roc_auc:
         y_prob = selected_model.predict_proba(X_val[features])[:, 1]
 
-        roc_auc = roc_auc_score(y_val, y_prob)
+        roc_auc_value = roc_auc_score(y_val, y_prob)
     else:
-        roc_auc = None
+        roc_auc_value = None
 
     results = {
         "model": model_name,
@@ -87,7 +118,7 @@ def report_keep_features(
         "recall": recall,
         "f1": f1,
         "accuracy": accuracy,
-        "roc_auc": roc_auc,
+        "roc_auc": roc_auc_value,
         "threshold": "Default",
         "class_distribution": "original",
     }
